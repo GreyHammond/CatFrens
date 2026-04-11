@@ -1,0 +1,86 @@
+[
+  {
+    "name": "Halloween",
+    "start": "10-01",
+    "end": "10-31",
+    "exclusive_date": "10-31",
+    "special_day_bonus": "daily",
+    "fact_file": "facts_halloween.json",
+    "fact_rate": 5,
+    "pull_boost": true,
+    "color": "FF6600",
+    "emoji": "🎃"
+  },
+  {
+    "name": "Winter",
+    "start": "12-01",
+    "end": "12-31",
+    "exclusive_date": "12-25",
+    "special_day_bonus": "daily",
+    "fact_file": "facts_winter.json",
+    "fact_rate": 5,
+    "pull_boost": false,
+    "color": "AED6F1",
+    "emoji": "❄️"
+  },
+  {
+    "name": "Valentine's Day",
+    "start": "02-10",
+    "end": "02-14",
+    "exclusive_date": "02-14",
+    "special_day_bonus": "daily",
+    "fact_file": "facts_valentines.json",
+    "fact_rate": 5,
+    "pull_boost": false,
+    "color": "FF69B4",
+    "emoji": "❤️"
+  },
+  {
+    "name": "Spring",
+    "start": "03-20",
+    "end": "04-20",
+    "exclusive_date": null,
+    "special_day_bonus": null,
+    "fact_file": "facts_spring.json",
+    "fact_rate": 5,
+    "pull_boost": false,
+    "color": "90EE90",
+    "emoji": "🌸"
+  },
+  {
+    "name": "National Cat Day",
+    "start": "10-29",
+    "end": "10-29",
+    "exclusive_date": "10-29",
+    "special_day_bonus": "weekly",
+    "fact_file": "facts_catday.json",
+    "fact_rate": 1,
+    "pull_boost": true,
+    "color": "F4A460",
+    "emoji": "🐱"
+  },
+  {
+    "name": "Moosifur's Birthday",
+    "start": "09-05",
+    "end": "09-05",
+    "exclusive_date": "09-05",
+    "special_day_bonus": "weekly",
+    "fact_file": "facts_birthday.json",
+    "fact_rate": 1,
+    "pull_boost": true,
+    "color": "FFD700",
+    "emoji": "🎂"
+  },
+  {
+    "name": "New Year's Day",
+    "start": "01-01",
+    "end": "01-01",
+    "exclusive_date": "01-01",
+    "special_day_bonus": "daily",
+    "fact_file": "facts_newyear.json",
+    "fact_rate": 1,
+    "pull_boost": true,
+    "color": "C0C0C0",
+    "emoji": "🎆"
+  }
+]

@@ -1,0 +1,466 @@
+{
+  "143988606405574656": {
+    "cards": {
+      "LegendFoil001": {
+        "tier": "legendary",
+        "count": 1,
+        "first_pulled": "2026-04-10T14:44:47.967034+00:00"
+      },
+      "LegendFoil002": {
+        "tier": "legendary",
+        "count": 1,
+        "first_pulled": "2026-04-10T19:38:13.355533+00:00"
+      },
+      "IMG_1165": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T20:04:16.841312+00:00"
+      },
+      "IMG_7020": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T22:31:49.158017+00:00"
+      },
+      "IMG_0982": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T00:01:04.416421+00:00"
+      },
+      "IMG_0775": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:13.513126+00:00"
+      },
+      "IMG_4655": {
+        "tier": "common",
+        "count": 2,
+        "first_pulled": "2026-04-11T13:56:13.513875+00:00"
+      },
+      "IMG_7825": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:13.515379+00:00"
+      },
+      "UltraRareFoil004": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:40.405931+00:00"
+      },
+      "IMG_0538": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:40.407691+00:00"
+      },
+      "IMG_0502": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:40.409453+00:00"
+      },
+      "IMG_1149": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:40.410960+00:00"
+      },
+      "LegendFoil003": {
+        "tier": "legendary",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:56:40.411708+00:00"
+      },
+      "IMG_0515": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T17:44:34.630181+00:00"
+      },
+      "IMG_1122": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T20:54:37.198910+00:00"
+      }
+    },
+    "total_pulls": 16,
+    "pity_counter": 3,
+    "last_pull": "2026-04-11T20:54:37.198910+00:00",
+    "pending_gifts": [],
+    "last_daily_claim": "2026-04-11T13:56:13.517643+00:00",
+    "daily_streak": 1,
+    "last_weekly_claim": "2026-04-11T13:56:40.412458+00:00"
+  },
+  "1099999499763601448": {
+    "cards": {
+      "UltraRareFoil001": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-10T20:02:25.367786+00:00"
+      },
+      "IMG_0475": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T20:10:12.542728+00:00"
+      },
+      "IMG_5721": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T20:40:16.095980+00:00"
+      },
+      "IMG_7753": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T22:30:51.823817+00:00"
+      },
+      "IMG_0915": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T23:05:47.194075+00:00"
+      },
+      "IMG_0897": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T07:37:27.405861+00:00"
+      },
+      "IMG_2769": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T09:43:48.968998+00:00"
+      },
+      "IMG_1160": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T10:15:14.479591+00:00"
+      },
+      "IMG_0503": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T10:55:32.807851+00:00"
+      },
+      "IMG_2203": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T13:22:05.482259+00:00"
+      },
+      "IMG_0775": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:23.654062+00:00"
+      },
+      "IMG_0299": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:23.655824+00:00"
+      },
+      "IMG_1179": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:23.658086+00:00"
+      },
+      "IMG_0555": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:38.467380+00:00"
+      },
+      "RareFoil011": {
+        "tier": "rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:38.468129+00:00"
+      },
+      "IMG_4920": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:38.469890+00:00"
+      },
+      "RareFoil003": {
+        "tier": "rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:38.471394+00:00"
+      },
+      "IMG_2503": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:38.472143+00:00"
+      },
+      "IMG_1738": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:03:57.220600+00:00"
+      },
+      "IMG_0285": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T14:52:25.802060+00:00"
+      },
+      "IMG_0296": {
+        "tier": "common",
+        "count": 2,
+        "first_pulled": "2026-04-11T16:39:17.192754+00:00"
+      },
+      "IMG_0509": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T17:36:50.290773+00:00"
+      },
+      "IMG_2204": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:19:17.057417+00:00"
+      },
+      "UltraRareFoil006": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T19:49:23.652968+00:00"
+      },
+      "RareFoil007": {
+        "tier": "rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T21:00:55.773600+00:00"
+      }
+    },
+    "total_pulls": 26,
+    "pity_counter": 0,
+    "last_pull": "2026-04-11T21:00:55.773600+00:00",
+    "pending_gifts": [],
+    "last_daily_claim": "2026-04-11T14:03:23.658835+00:00",
+    "daily_streak": 1,
+    "last_weekly_claim": "2026-04-11T14:03:38.472889+00:00"
+  },
+  "196106852214243328": {
+    "cards": {
+      "LegendFoil002": {
+        "tier": "legendary",
+        "count": 2,
+        "first_pulled": "2026-04-10T20:55:42.471695+00:00"
+      },
+      "IMG_1162": {
+        "tier": "common",
+        "count": 2,
+        "first_pulled": "2026-04-10T22:30:08.867070+00:00"
+      },
+      "IMG_7022": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-10T23:11:20.664554+00:00"
+      },
+      "IMG_5590": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T00:04:17.665120+00:00"
+      },
+      "IMG_7512": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T00:10:06.326167+00:00"
+      },
+      "IMG_0932": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T00:57:17.980262+00:00"
+      },
+      "IMG_7024": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T01:52:33.709892+00:00"
+      },
+      "RareFoil002": {
+        "tier": "rare",
+        "count": 2,
+        "first_pulled": "2026-04-11T02:03:26.558240+00:00"
+      },
+      "IMG_1164": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:03:31.031024+00:00"
+      },
+      "RareFoil013": {
+        "tier": "rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:03:31.031779+00:00"
+      },
+      "IMG_0502": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:03:31.032784+00:00"
+      },
+      "IMG_4653": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:03:31.033540+00:00"
+      },
+      "IMG_0883": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:03:31.034300+00:00"
+      },
+      "IMG_7020": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:06:11.506546+00:00"
+      },
+      "IMG_1136": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:06:57.389663+00:00"
+      },
+      "IMG_2203": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:06:57.391425+00:00"
+      },
+      "UltraRareFoil002": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T02:06:57.392429+00:00"
+      },
+      "IMG_7753": {
+        "tier": "common",
+        "count": 2,
+        "first_pulled": "2026-04-11T04:28:08.023444+00:00"
+      },
+      "RareFoil012": {
+        "tier": "rare",
+        "count": 2,
+        "first_pulled": "2026-04-11T04:28:19.816847+00:00"
+      },
+      "LegendFoil001": {
+        "tier": "legendary",
+        "count": 1,
+        "first_pulled": "2026-04-11T05:43:32.443937+00:00"
+      },
+      "IMG_0982": {
+        "tier": "common",
+        "count": 2,
+        "first_pulled": "2026-04-11T08:31:13.765900+00:00"
+      },
+      "IMG_1150": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T12:59:46.546891+00:00"
+      },
+      "IMG_0508": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:06:47.269499+00:00"
+      },
+      "UltraRareFoil001": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:19:14.564749+00:00"
+      },
+      "IMG_0568": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:55:58.509628+00:00"
+      },
+      "IMG_0285": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:56:02.590600+00:00"
+      },
+      "IMG_1185": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:56:02.592106+00:00"
+      },
+      "IMG_4918": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T18:56:02.593604+00:00"
+      },
+      "IMG_0538": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T19:04:37.479137+00:00"
+      },
+      "IMG_0898": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T19:04:37.480646+00:00"
+      },
+      "IMG_4827": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T19:40:20.159183+00:00"
+      },
+      "IMG_7752": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T19:49:40.570936+00:00"
+      },
+      "LegendFoil003": {
+        "tier": "legendary",
+        "count": 1,
+        "first_pulled": "2026-04-11T20:54:45.114578+00:00"
+      }
+    },
+    "total_pulls": 39,
+    "pity_counter": 0,
+    "last_pull": "2026-04-11T20:54:45.114578+00:00",
+    "pending_gifts": [],
+    "last_daily_claim": "2026-04-11T01:56:30.474528+00:00",
+    "last_weekly_claim": "2026-04-11T02:03:31.035307+00:00",
+    "bonus_packs": []
+  },
+  "559849884782428161": {
+    "cards": {
+      "UltraRareFoil005": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T00:22:49.172632+00:00"
+      },
+      "IMG_0981": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T01:11:50.600607+00:00"
+      },
+      "IMG_1185": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:28.278426+00:00"
+      },
+      "IMG_1163": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:28.279927+00:00"
+      },
+      "IMG_1164": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:28.281032+00:00"
+      },
+      "IMG_0898": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:45.147983+00:00"
+      },
+      "IMG_4918": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:45.149483+00:00"
+      },
+      "IMG_1161": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:45.149483+00:00"
+      },
+      "image": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:45.152676+00:00"
+      },
+      "IMG_1144": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:18:45.153432+00:00"
+      },
+      "UltraRareFoil004": {
+        "tier": "ultra_rare",
+        "count": 1,
+        "first_pulled": "2026-04-11T11:19:08.358433+00:00"
+      }
+    },
+    "total_pulls": 11,
+    "pity_counter": 0,
+    "last_pull": "2026-04-11T11:19:08.358433+00:00",
+    "pending_gifts": [],
+    "last_daily_claim": "2026-04-11T11:18:28.282537+00:00",
+    "daily_streak": 1,
+    "last_weekly_claim": "2026-04-11T11:18:45.153432+00:00"
+  }
+}
