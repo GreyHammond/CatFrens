@@ -29,6 +29,9 @@ A Discord bot built around Moosifur — a trading card collector, cat fact dispe
 - Your Discord user ID (right-click your name → Copy User ID)
 
 ### Run the installer
+Double-click `install_catfrens.bat`
+
+OR in your terminal:
 
 ```bash
 python install_catfrens.py
