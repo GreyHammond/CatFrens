@@ -8,7 +8,7 @@ A Discord bot built around Moosifur — a trading card collector, cat fact dispe
 
 | Feature | Description |
 |---|---|
-| 🃏 **Card Pulling** | `/random` pulls a Moose photo card with rarity tiers — Common, Rare, Ultra Rare, and Legendary |
+| 🃏 **Card Pulling** | `/random` pulls a photo card with rarity tiers — Common, Rare, Ultra Rare, and Legendary |
 | 📸 **Card Creation** | `/grab` and `/grablink` turn Discord images into framed foil trading cards automatically |
 | 🗃️ **Collection System** | `/collection`, `/duplicates`, `/wishlist`, `/compare` — collect, trade, and manage your cards |
 | 📦 **Booster Packs** | `/daily`, `/weekly`, `/bonuspack` — claim packs on a cooldown with better odds the longer you wait |
@@ -52,13 +52,13 @@ That's it. The installer handles everything else automatically.
 
 **Creates:**
 - `config.py` with your token and ID already filled in
-- `photos/` `rare/` `ultra_rare/` `legendary/` — ready for your Moose photos
+- `photos/` `rare/` `ultra_rare/` `legendary/` — ready for your photos
 - `assets/` — card frame art
 - `start_catfrens.bat` — double-click to run, no terminal needed ever again
 
 ### After install
 
-1. Drop your Moose photos into the right folders
+1. Drop your card photos into the right folders
 2. [Invite the bot](https://discord.com/developers/applications) to your server with scopes: `bot` + `applications.commands`, permissions: Send Messages, Attach Files, Read Message History, Use Slash Commands, Manage Messages, Read Members
 3. Double-click `start_catfrens.bat` — you're live 🐾
 
@@ -135,7 +135,7 @@ Per-server cooldowns and channel restrictions can be set without editing any fil
 ### Everyone
 | Command | Description |
 |---|---|
-| `/random` | Pull a random Moose card |
+| `/random` | Pull a random card |
 | `/daily` | Claim your daily booster pack (3 cards) |
 | `/weekly` | Claim your weekly booster pack (5 cards) |
 | `/bonuspack` | Claim any gifted bonus packs |
@@ -146,7 +146,7 @@ Per-server cooldowns and channel restrictions can be set without editing any fil
 | `/wishlist` | Manage your card wishlist |
 | `/compare` | Compare your collection with another user |
 | `/topmoose` | Server collector leaderboard |
-| `/foto` | Post a specific Moose photo by name |
+| `/foto` | Post a specific card photo by name |
 | `/savedfacts` | View facts you've saved with 🐾 reactions |
 
 ### Admin
