@@ -270,18 +270,15 @@
       },
       "RareFoil013": {
         "tier": "rare",
-        "count": 1,
-        "first_pulled": "2026-04-11T02:03:31.031779+00:00"
+        "count": 2,
+        "first_pulled": "2026-04-11T02:03:31.031779+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
       },
       "IMG_0502": {
         "tier": "common",
         "count": 1,
         "first_pulled": "2026-04-11T02:03:31.032784+00:00"
-      },
-      "IMG_4653": {
-        "tier": "common",
-        "count": 1,
-        "first_pulled": "2026-04-11T02:03:31.033540+00:00"
       },
       "IMG_0883": {
         "tier": "common",
@@ -387,15 +384,74 @@
         "tier": "legendary",
         "count": 1,
         "first_pulled": "2026-04-11T20:54:45.114578+00:00"
+      },
+      "BelugaCat": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:35:11.905826+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "Garfield01": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:35:49.678842+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "IMG_7023": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:35:49.678842+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "IMG_0569": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:35:49.678842+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "InvisibleBikeCat": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:36:18.284989+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "IMG_0515": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:36:18.284989+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "IMG_4920": {
+        "tier": "common",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:36:18.284989+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
+      },
+      "RareFoil006": {
+        "tier": "rare",
+        "count": 1,
+        "first_pulled": "2026-05-06T19:36:18.284989+00:00",
+        "cdn_url": null,
+        "cdn_expires": null
       }
     },
-    "total_pulls": 39,
+    "total_pulls": 48,
     "pity_counter": 0,
-    "last_pull": "2026-04-11T20:54:45.114578+00:00",
+    "last_pull": "2026-05-06T19:35:11.905826+00:00",
     "pending_gifts": [],
-    "last_daily_claim": "2026-04-11T01:56:30.474528+00:00",
-    "last_weekly_claim": "2026-04-11T02:03:31.035307+00:00",
-    "bonus_packs": []
+    "last_daily_claim": "2026-05-06T19:35:49.678842+00:00",
+    "last_weekly_claim": "2026-05-06T19:36:18.284989+00:00",
+    "bonus_packs": [],
+    "total_daily_claims": 1,
+    "daily_streak": 1,
+    "total_weekly_claims": 1
   },
   "559849884782428161": {
     "cards": {

@@ -11,7 +11,8 @@ from datetime import datetime, timezone
 from config import (
     TOKEN, PREFIX, OWNER_ID, IMAGE_EXTS,
     MOOSE_MESSAGES, TIER_LABELS, TIER_EMOJIS, TIER_COLORS,
-    DEFAULT_PULL_COOLDOWN_MINUTES, TRUSTED_USERS
+    DEFAULT_PULL_COOLDOWN_MINUTES, TRUSTED_USERS, GRABBABLE_TIERS,
+    CATCOIN_SELL_VALUES,
 )
 import facts as facts_mod
 import guild_settings as gs_mod
@@ -23,6 +24,7 @@ from photos import (
 )
 from pull import determine_tier
 import dashboard as dash
+import economy as econ_mod
 from ui import fact_embed, pull_embed, info_embed, profile_embed, CollectionView, DuplicatesView, moose_fact_embed, BoosterPackView, event_fact_embed, WishlistView, command_rate_guard
 
 # =============================================================================
@@ -31,6 +33,7 @@ from ui import fact_embed, pull_embed, info_embed, profile_embed, CollectionView
 ALL_FACTS     = facts_mod.load_facts()
 guild_cfg     = gs_mod.load_guild_settings()
 col_data      = col_mod.load_collections()
+econ_data     = econ_mod.load_economy()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -252,6 +255,29 @@ async def _do_pull(user_id: int, channel_id: int, guild_id: int, member_roles: s
         is_dupe    = card_count > 1
         return photo, actual_tier, message, None, False, is_dupe, card_count
 
+async def _get_card_image(user_id: int, photo, tier: str) -> tuple:
+    """
+    Image serving helper. Priority:
+    1. Valid CDN URL cached in user collection (< 24hr)
+    2. GitHub raw URL (permanent, no upload needed)
+    3. Fallback: upload discord.File and cache the returned CDN URL
+
+    Returns (url_or_none, file_or_none, use_url)
+    use_url=True  → set embed image to url, no file kwarg needed
+    use_url=False → use file= kwarg (fallback upload path)
+    """
+    from photos import github_url_for
+    user_data = col_mod.get_user(col_data, user_id)
+
+    # 1. CDN cache hit
+    cdn = col_mod.get_cached_image_url(user_data, photo.stem)
+    if cdn:
+        return cdn, None, True
+
+    # 2. GitHub raw URL — try head request to confirm file exists
+    gh_url = github_url_for(tier, photo.name)
+    return gh_url, None, True
+
 @bot.command(name="random")
 async def prefix_random(ctx: commands.Context):
     if not await prefix_guard(ctx): return
@@ -268,7 +294,12 @@ async def prefix_random(ctx: commands.Context):
     has_daily,  _ = col_mod.can_claim_daily(user_data)
     has_weekly, _ = col_mod.can_claim_weekly(user_data)
     has_bonus     = bonus_pack_count(col_data, ctx.author.id) > 0
-    await ctx.send(embed=pull_embed(photo, tier, message, is_gift=is_gift, is_dupe=is_dupe, dupe_count=card_count, has_daily=has_daily, has_weekly=has_weekly, has_bonus=has_bonus), file=discord.File(photo))
+    img_url, img_file, use_url = await _get_card_image(ctx.author.id, photo, tier)
+    emb = pull_embed(photo, tier, message, is_gift=is_gift, is_dupe=is_dupe, dupe_count=card_count, has_daily=has_daily, has_weekly=has_weekly, has_bonus=has_bonus, image_url=img_url if use_url else None)
+    if use_url:
+        await ctx.send(embed=emb)
+    else:
+        await ctx.send(embed=emb, file=discord.File(photo))
 
 @bot.tree.command(name="random", description="Pull a random Moose card!")
 async def slash_random(interaction: discord.Interaction):
@@ -288,7 +319,12 @@ async def slash_random(interaction: discord.Interaction):
     has_daily,  _ = col_mod.can_claim_daily(user_data)
     has_weekly, _ = col_mod.can_claim_weekly(user_data)
     has_bonus     = bonus_pack_count(col_data, interaction.user.id) > 0
-    await interaction.response.send_message(embed=pull_embed(photo, tier, message, is_gift=is_gift, is_dupe=is_dupe, dupe_count=card_count, has_daily=has_daily, has_weekly=has_weekly, has_bonus=has_bonus), file=discord.File(photo))
+    img_url, img_file, use_url = await _get_card_image(interaction.user.id, photo, tier)
+    emb = pull_embed(photo, tier, message, is_gift=is_gift, is_dupe=is_dupe, dupe_count=card_count, has_daily=has_daily, has_weekly=has_weekly, has_bonus=has_bonus, image_url=img_url if use_url else None)
+    if use_url:
+        await interaction.response.send_message(embed=emb)
+    else:
+        await interaction.response.send_message(embed=emb, file=discord.File(photo))
 
 # =============================================================================
 #  !foto / /foto  —  Specific photo (common folder only, autocomplete)
@@ -337,7 +373,8 @@ async def slash_foto(interaction: discord.Interaction, name: str):
 # =============================================================================
 #  !grab / /grab
 # =============================================================================
-VALID_TIERS = ["common", "rare", "ultra_rare", "legendary"]
+# Tier targets for grab/grablink — driven by config.GRABBABLE_TIERS (ultra_rare excluded)
+VALID_TIERS = GRABBABLE_TIERS
 
 WORK_DIR = Path("work")
 
@@ -395,10 +432,13 @@ async def prefix_grab(ctx: commands.Context, n: int = 50, tier: str = "common"):
 @bot.tree.command(name="grab", description="Save images from the last N messages in this channel.")
 @app_commands.describe(n="How many messages to scan (default 50, max 500).", tier="Rarity folder to save into (default: common).")
 @app_commands.choices(tier=[
-    app_commands.Choice(name="Common",     value="common"),
-    app_commands.Choice(name="Rare",       value="rare"),
-    app_commands.Choice(name="Ultra Rare", value="ultra_rare"),
-    app_commands.Choice(name="Legendary",  value="legendary"),
+    app_commands.Choice(name="Common",        value="common"),
+    app_commands.Choice(name="Rare",          value="rare"),
+    app_commands.Choice(name="Secret Rare",   value="secret_rare"),
+    app_commands.Choice(name="Legendary",     value="legendary"),
+    app_commands.Choice(name="Mythic Rare",   value="mythic_rare"),
+    app_commands.Choice(name="Secret Mythic", value="secret_mythic"),
+    app_commands.Choice(name="Primordial",    value="primordial"),
 ])
 async def slash_grab(interaction: discord.Interaction, n: int = 50, tier: str = "common"):
     if interaction.user.id not in TRUSTED_USERS:
@@ -477,10 +517,13 @@ async def prefix_grablink(ctx: commands.Context, url: str, tier: str = "common")
 @bot.tree.command(name="grablink", description="Save images from a specific Discord message link.")
 @app_commands.describe(url="Paste the full Discord message link here.", tier="Rarity folder to save into (default: common).")
 @app_commands.choices(tier=[
-    app_commands.Choice(name="Common",     value="common"),
-    app_commands.Choice(name="Rare",       value="rare"),
-    app_commands.Choice(name="Ultra Rare", value="ultra_rare"),
-    app_commands.Choice(name="Legendary",  value="legendary"),
+    app_commands.Choice(name="Common",        value="common"),
+    app_commands.Choice(name="Rare",          value="rare"),
+    app_commands.Choice(name="Secret Rare",   value="secret_rare"),
+    app_commands.Choice(name="Legendary",     value="legendary"),
+    app_commands.Choice(name="Mythic Rare",   value="mythic_rare"),
+    app_commands.Choice(name="Secret Mythic", value="secret_mythic"),
+    app_commands.Choice(name="Primordial",    value="primordial"),
 ])
 async def slash_grablink(interaction: discord.Interaction, url: str, tier: str = "common"):
     if interaction.user.id not in TRUSTED_USERS:
@@ -622,10 +665,11 @@ async def slash_servers(interaction: discord.Interaction):
 # =============================================================================
 @bot.tree.command(name="duplicates", description="View your duplicate Moose cards and trade or gift them.")
 async def slash_duplicates(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
     user_data = col_mod.get_user(col_data, interaction.user.id)
     total     = total_card_count()
     view      = DuplicatesView(interaction.user, user_data, col_data, total)
-    await interaction.response.send_message(embed=view.build_embed(), view=view, ephemeral=True)
+    await interaction.followup.send(embed=view.build_embed(), view=view, ephemeral=True)
 
 # =============================================================================
 #  -fact  —  Add a Moosifur fact (trusted users only)
@@ -1368,6 +1412,41 @@ async def slash_gift(interaction: discord.Interaction, card: str, member: discor
     embed.set_footer(text=f"You have {my_data['cards'][card]['count']} of this card remaining.")
     await interaction.response.send_message(embed=embed)
 
+
+# =============================================================================
+#  /sell  —  Sell cards for CatCoins
+# =============================================================================
+@bot.tree.command(name="sell", description="Sell your Moose cards for CatCoins.")
+async def slash_sell(interaction: discord.Interaction):
+    if not await guard(interaction): return
+    await interaction.response.defer(ephemeral=True)
+    user_data = col_mod.get_user(col_data, interaction.user.id)
+    from ui import SellView
+    view = SellView(interaction.user, user_data, col_data, econ_data)
+    await interaction.followup.send(embed=view.build_embed(), view=view, ephemeral=True)
+
+# =============================================================================
+#  /balance  —  Check CatCoin balance
+# =============================================================================
+@bot.tree.command(name="balance", description="Check your CatCoin balance.")
+async def slash_balance(interaction: discord.Interaction):
+    if not await guard(interaction): return
+    await interaction.response.defer(ephemeral=True)
+    data    = econ_mod.load_economy()
+    user    = econ_mod.get_user_economy(data, interaction.user.id)
+    balance = user["catcoins"]
+    earned  = user["lifetime_earned"]
+    spent   = user["lifetime_spent"]
+    embed   = discord.Embed(
+        title="🪙 CatCoin Balance",
+        color=0xFFD700
+    )
+    embed.add_field(name="Current Balance", value=f"**{balance:,} CatCoins**", inline=False)
+    embed.add_field(name="Lifetime Earned", value=f"{earned:,}", inline=True)
+    embed.add_field(name="Lifetime Spent",  value=f"{spent:,}",  inline=True)
+    embed.set_footer(text="Earn CatCoins by selling cards with /sell")
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
 # =============================================================================
 #  ON READY
 # =============================================================================
@@ -1380,14 +1459,24 @@ async def on_ready():
     dash.start()
     dash.print_startup(bot.user, len(list_common_photos()), total_card_count(), len(bot.guilds), active_event)
     dash.print_server_table(bot.guilds, guild_cfg)
-    try:
-        synced = await bot.tree.sync()
-        force_ids = [1488753938223333520, 1450923847686557698]
-        for guild_id in force_ids:
+    synced = await bot.tree.sync()
+    force_ids = [1488753938223333520, 1450923847686557698]
+    force_synced = []
+    force_skipped = []
+    for guild_id in force_ids:
+        try:
             await bot.tree.sync(guild=discord.Object(id=guild_id))
-        dash.print_sync(len(synced), force_ids)
-    except Exception as e:
-        dash.print_sync_error(e)
+            force_synced.append(guild_id)
+        except discord.Forbidden:
+            force_skipped.append(guild_id)
+            dash.log_info(
+                f"[Sync] Skipped guild {guild_id} — bot not present or lacks access. "
+                f"Commands will propagate globally within ~1 hour."
+            )
+        except Exception as e:
+            force_skipped.append(guild_id)
+            dash.log_info(f"[Sync] Could not force-sync guild {guild_id}: {e}")
+    dash.print_sync(len(synced), force_synced)
     scheduled_fact_loop.start()
     moose_of_the_day_loop.start()
     dash.log_info("Ready. 🐾")

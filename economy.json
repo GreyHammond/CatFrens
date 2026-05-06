@@ -1,0 +1,17 @@
+{
+  "196106852214243328": {
+    "catcoins": 1,
+    "lifetime_earned": 1,
+    "lifetime_spent": 0,
+    "transactions": [
+      {
+        "type": "sell",
+        "card": "IMG_4653",
+        "tier": "common",
+        "quantity": 1,
+        "amount": 1,
+        "timestamp": "2026-05-06T19:33:07.217911+00:00"
+      }
+    ]
+  }
+}

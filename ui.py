@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from discord.ext import commands
-from config import TIER_COLORS, TIER_LABELS, TIER_EMOJIS, TIERS
-from user_collections import get_collection_by_tier, completion_percent, rarest_card, get_duplicates
+from config import TIER_COLORS, TIER_LABELS, TIER_EMOJIS, TIERS, CATCOIN_SELL_VALUES
+from user_collections import get_collection_by_tier, completion_percent, rarest_card, get_duplicates, get_all_cards_sorted, sell_card_copies
 from photos import total_card_count, find_photo_in_tier
+import economy as econ_mod
 
 # =============================================================================
 #  RATE LIMITER
@@ -174,7 +175,7 @@ def fact_embed(fact: str, idx: int, label: str = "Cat Fact") -> discord.Embed:
     embed.set_footer(text=f"Fact #{idx + 1}")
     return embed
 
-def pull_embed(photo: Path, tier: str, message: str, is_gift: bool = False, is_dupe: bool = False, dupe_count: int = 1, has_daily: bool = False, has_weekly: bool = False, has_bonus: bool = False) -> discord.Embed:
+def pull_embed(photo: Path, tier: str, message: str, is_gift: bool = False, is_dupe: bool = False, dupe_count: int = 1, has_daily: bool = False, has_weekly: bool = False, has_bonus: bool = False, image_url: str = None) -> discord.Embed:
     color = TIER_COLORS[tier]
     label = TIER_LABELS[tier]
     emoji = TIER_EMOJIS[tier]
@@ -184,16 +185,15 @@ def pull_embed(photo: Path, tier: str, message: str, is_gift: bool = False, is_d
         color=color,
     )
     embed.set_author(name=f"CatFrens | {emoji} {label}{gift_tag}")
-    embed.set_image(url=f"attachment://{photo.name}")
+    # Use GitHub/CDN URL if available, else fall back to attachment
+    if image_url:
+        embed.set_image(url=image_url)
+    else:
+        embed.set_image(url=f"attachment://{photo.name}")
     footer = f"{label} • {photo.stem}"
+    sell_val = CATCOIN_SELL_VALUES.get(tier, 0)
     if is_dupe:
-        footer += f" • ⚠️ Duplicate! You now have {dupe_count} of these."
-        from user_collections import get_tradeable_count
-        tier_costs = {"common": (10, "Rare"), "rare": (5, "Ultra Rare"), "ultra_rare": (5, "Legendary")}
-        if tier in tier_costs:
-            cost, result = tier_costs[tier]
-            if dupe_count - 1 >= cost:
-                footer += f" • 🔄 Use /duplicates to trade up to {result}!"
+        footer += f" • ⚠️ Duplicate! You now have {dupe_count}. Sell for {sell_val} 🪙 via /sell or /duplicates."
 
     # Pack nudge
     if has_daily and has_weekly:
@@ -221,8 +221,10 @@ def info_embed(used: int, total_facts: int, total_photos: int) -> discord.Embed:
         "`/foto` — Specific photo (with autocomplete!!!)\n"
         "`/collection` — View your Moose card collection\n"
         "`/profile` — View your pull stats and streak\n"
-        "`/duplicates` — View, gift, or trade your duplicate cards\n"
+        "`/duplicates` — View, gift, trade, or sell your duplicate cards\n"
         "`/gift @user <card>` — Quick-gift a duplicate card\n"
+        "`/sell` — Sell cards for CatCoins\n"
+        "`/balance` — Check your CatCoin balance\n"
         "`/compare` — Compare your collection with another user\n"
         "`/wishlist` — Manage your card wishlist"
     ), inline=False)
@@ -274,7 +276,11 @@ def profile_embed(member: discord.Member, user_data: dict, total_cards: int) -> 
     embed.add_field(
         name="Collection Breakdown",
         value=(
+            f"{TIER_EMOJIS['primordial']} Primordial: **{counts['primordial']}**\n"
+            f"{TIER_EMOJIS['secret_mythic']} Secret Mythic: **{counts['secret_mythic']}**\n"
+            f"{TIER_EMOJIS['mythic_rare']} Mythic Rare: **{counts['mythic_rare']}**\n"
             f"{TIER_EMOJIS['legendary']} Legendary: **{counts['legendary']}**\n"
+            f"{TIER_EMOJIS['secret_rare']} Secret Rare: **{counts['secret_rare']}**\n"
             f"{TIER_EMOJIS['ultra_rare']} Ultra Rare: **{counts['ultra_rare']}**\n"
             f"{TIER_EMOJIS['rare']} Rare: **{counts['rare']}**\n"
             f"{TIER_EMOJIS['common']} Common: **{counts['common']}**"
@@ -287,7 +293,7 @@ def profile_embed(member: discord.Member, user_data: dict, total_cards: int) -> 
             value=f"{TIER_EMOJIS[best_tier]} `{best}` ({TIER_LABELS[best_tier]})",
             inline=False
         )
-    embed.add_field(name="Pity Counter", value=f"{pity} / 40 commons", inline=True)
+    embed.add_field(name="Pity Counter", value=f"{pity} / 40 commons (guarantees Rare+ on hit)", inline=True)
     pending = len(user_data.get("pending_gifts", []))
     if pending:
         embed.add_field(name="🎁 Pending Gifts", value=str(pending), inline=True)
@@ -339,12 +345,11 @@ class CollectionView(discord.ui.View):
         self.total_cards = total_cards
         self.viewer_id   = viewer_id
 
-        # Build a flat sorted card list: legendary first
-        by_tier = get_collection_by_tier(user_data)
+        # Build a flat sorted card list: rarest first across all 8 tiers
         self.cards = []
-        for tier in ["legendary", "ultra_rare", "rare", "common"]:
-            for card in by_tier[tier]:
-                self.cards.append((card["filename"], tier))
+        all_sorted = get_all_cards_sorted(user_data, descending=True)
+        for card in all_sorted:
+            self.cards.append((card["filename"], card["tier"]))
 
         self.page      = 0
         self.total_pages = max(1, (len(self.cards) + CARDS_PER_PAGE - 1) // CARDS_PER_PAGE)
@@ -937,6 +942,301 @@ from user_collections import (
 )
 
 # Set once at startup by bot.py so back-navigation keeps bot access
+
+# =============================================================================
+#  SELL VIEW  — /sell command UI
+# =============================================================================
+SELL_PER_PAGE = 8
+
+class SellView(discord.ui.View):
+    """
+    Paginated sell interface. Shows all cards (or dupes only) sorted by tier.
+    Category jump dropdown + sort toggle + pagination.
+    Entry points: /sell, /duplicates Sell Dupes button, /collection sell button.
+    """
+    def __init__(
+        self,
+        member,
+        user_data: dict,
+        col_data: dict,
+        econ_data: dict,
+        dupes_only: bool = False,
+        back_view=None,
+        start_tier: str = None,
+    ):
+        super().__init__(timeout=180)
+        self.member      = member
+        self.user_data   = user_data
+        self.col_data    = col_data
+        self.econ_data   = econ_data
+        self.dupes_only  = dupes_only
+        self.back_view   = back_view
+        self.descending  = False   # False = common first; True = rarest first
+        self.filter_tier = start_tier  # None = all tiers
+        self.page        = 0
+
+        self._build_card_list()
+        self._refresh_buttons()
+
+    def _build_card_list(self):
+        """Build the working card list from user_data respecting current filters."""
+        all_cards = get_all_cards_sorted(self.user_data, descending=self.descending)
+        if self.dupes_only:
+            all_cards = [c for c in all_cards if c.get("count", 1) > 1]
+        if self.filter_tier:
+            all_cards = [c for c in all_cards if c.get("tier") == self.filter_tier]
+        self.cards       = all_cards
+        self.total_pages = max(1, (len(self.cards) + SELL_PER_PAGE - 1) // SELL_PER_PAGE)
+        self.page        = min(self.page, self.total_pages - 1)
+
+    def _refresh_buttons(self):
+        self.prev_btn.disabled = self.page == 0
+        self.next_btn.disabled = self.page >= self.total_pages - 1
+        self.sort_btn.label = "⬇️ Rarest First" if not self.descending else "⬆️ Common First"
+
+    def build_embed(self) -> discord.Embed:
+        mode = "Duplicates" if self.dupes_only else "All Cards"
+        tier_label = TIER_LABELS.get(self.filter_tier, "All Tiers") if self.filter_tier else "All Tiers"
+        econ_user = econ_mod.get_user_economy(self.econ_data, self.member.id)
+        balance   = econ_user["catcoins"]
+
+        embed = discord.Embed(
+            title=f"🪙 Sell Cards — {self.member.display_name}",
+            description=(
+                f"**Balance:** {balance:,} CatCoins  |  **Showing:** {mode} / {tier_label}\nSelect a card number below to sell it."
+            ),
+            color=0xFFD700
+        )
+
+        start      = self.page * SELL_PER_PAGE
+        page_cards = self.cards[start:start + SELL_PER_PAGE]
+
+        if page_cards:
+            lines = []
+            for i, card in enumerate(page_cards, start=start + 1):
+                filename  = card["filename"]
+                tier      = card.get("tier", "common")
+                count     = card.get("count", 1)
+                sell_val  = CATCOIN_SELL_VALUES.get(tier, 0)
+                count_str = f" (x{count})" if count > 1 else ""
+                lines.append(
+                    f"`{i}.` {TIER_EMOJIS[tier]} `{filename}`{count_str} "
+                    f"— {TIER_LABELS[tier]} • **{sell_val} 🪙 ea**"
+                )
+            embed.add_field(name="Cards", value="\n".join(lines), inline=False)
+        else:
+            embed.add_field(name="Cards", value="_No cards match this filter._", inline=False)
+
+        embed.set_footer(text=f"Page {self.page + 1} of {self.total_pages} | Use 🔢 Sell Card to choose")
+        return embed
+
+    # ── Category jump ──────────────────────────────────────────────────────────
+    @discord.ui.select(
+        placeholder="Jump to tier...",
+        options=[
+            discord.SelectOption(label="All Tiers",     value="all"),
+            discord.SelectOption(label="Common",        value="common"),
+            discord.SelectOption(label="Rare",          value="rare"),
+            discord.SelectOption(label="Ultra Rare",    value="ultra_rare"),
+            discord.SelectOption(label="Secret Rare",   value="secret_rare"),
+            discord.SelectOption(label="Legendary",     value="legendary"),
+            discord.SelectOption(label="Mythic Rare",   value="mythic_rare"),
+            discord.SelectOption(label="Secret Mythic", value="secret_mythic"),
+            discord.SelectOption(label="Primordial",    value="primordial"),
+        ],
+        row=0,
+    )
+    async def category_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        val = select.values[0]
+        self.filter_tier = None if val == "all" else val
+        self.page = 0
+        self._build_card_list()
+        self._refresh_buttons()
+        await interaction.response.edit_message(embed=self.build_embed(), view=self)
+
+    # ── Sort toggle ────────────────────────────────────────────────────────────
+    @discord.ui.button(label="⬇️ Rarest First", style=discord.ButtonStyle.secondary, row=1)
+    async def sort_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.descending = not self.descending
+        self.page = 0
+        self._build_card_list()
+        self._refresh_buttons()
+        await interaction.response.edit_message(embed=self.build_embed(), view=self)
+
+    # ── Sell card ──────────────────────────────────────────────────────────────
+    @discord.ui.button(label="🔢 Sell Card", style=discord.ButtonStyle.primary, row=1)
+    async def sell_card_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not self.cards:
+            await interaction.response.send_message("No cards to sell.", ephemeral=True); return
+        await interaction.response.send_modal(SellCardModal(self))
+
+    # ── Pagination ─────────────────────────────────────────────────────────────
+    @discord.ui.button(label="◀ Prev", style=discord.ButtonStyle.secondary, row=2)
+    async def prev_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.page -= 1
+        self._refresh_buttons()
+        await interaction.response.edit_message(embed=self.build_embed(), view=self)
+
+    @discord.ui.button(label="Next ▶", style=discord.ButtonStyle.secondary, row=2)
+    async def next_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.page += 1
+        self._refresh_buttons()
+        await interaction.response.edit_message(embed=self.build_embed(), view=self)
+
+    # ── Back ───────────────────────────────────────────────────────────────────
+    @discord.ui.button(label="◀ Back", style=discord.ButtonStyle.secondary, row=3)
+    async def back_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.back_view:
+            await interaction.response.edit_message(
+                embed=self.back_view.build_embed(), view=self.back_view
+            )
+        else:
+            await interaction.response.edit_message(
+                content="Sell menu closed.", embed=None, view=None
+            )
+
+
+class SellCardModal(discord.ui.Modal, title="Sell a Card"):
+    number = discord.ui.TextInput(
+        label="Card number from the list",
+        placeholder="e.g. 3",
+        min_length=1, max_length=4,
+    )
+    quantity = discord.ui.TextInput(
+        label="How many to sell?",
+        placeholder="e.g. 1",
+        min_length=1, max_length=4,
+        default="1",
+    )
+
+    def __init__(self, parent_view: SellView):
+        super().__init__()
+        self.parent_view = parent_view
+
+    async def on_submit(self, interaction: discord.Interaction):
+        # Parse and validate card number
+        try:
+            idx = int(self.number.value.strip()) - 1
+        except ValueError:
+            await interaction.response.send_message("❌ Enter a valid card number.", ephemeral=True); return
+
+        cards = self.parent_view.cards
+        if idx < 0 or idx >= len(cards):
+            await interaction.response.send_message(
+                f"❌ Number must be between 1 and {len(cards)}.", ephemeral=True
+            ); return
+
+        # Parse quantity
+        try:
+            qty = int(self.quantity.value.strip())
+            if qty < 1:
+                raise ValueError
+        except ValueError:
+            await interaction.response.send_message("❌ Quantity must be a positive number.", ephemeral=True); return
+
+        card     = cards[idx]
+        filename = card["filename"]
+        tier     = card.get("tier", "common")
+        owned    = card.get("count", 1)
+        sell_val = CATCOIN_SELL_VALUES.get(tier, 0)
+        total_coins = sell_val * qty
+
+        if qty > owned:
+            await interaction.response.send_message(
+                f"❌ You only own **{owned}** of `{filename}`.", ephemeral=True
+            ); return
+
+        # Build confirmation view
+        confirm = SellConfirmView(self.parent_view, filename, tier, qty, owned, total_coins)
+        embed   = confirm.build_embed()
+        await interaction.response.send_message(embed=embed, view=confirm, ephemeral=True)
+
+
+class SellConfirmView(discord.ui.View):
+    """One-shot confirmation before executing a sell."""
+
+    def __init__(
+        self,
+        parent_view: SellView,
+        filename: str,
+        tier: str,
+        quantity: int,
+        owned: int,
+        total_coins: int,
+    ):
+        super().__init__(timeout=60)
+        self.parent_view = parent_view
+        self.filename    = filename
+        self.tier        = tier
+        self.quantity    = quantity
+        self.owned       = owned
+        self.total_coins = total_coins
+
+    def build_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="🪙 Confirm Sale",
+            color=TIER_COLORS.get(self.tier, 0xFFD700),
+        )
+        embed.add_field(name="Card",     value=f"`{self.filename}`",                      inline=True)
+        embed.add_field(name="Tier",     value=TIER_LABELS.get(self.tier, self.tier),     inline=True)
+        embed.add_field(name="Selling",  value=f"**{self.quantity}** of {self.owned}",    inline=True)
+        embed.add_field(name="You'll Receive", value=f"**{self.total_coins:,} 🪙 CatCoins**", inline=False)
+        if self.quantity == self.owned:
+            embed.add_field(
+                name="⚠️ Last Copy Warning",
+                value="You are selling your **only copy** of this card. It will be permanently removed from your collection.",
+                inline=False,
+            )
+        embed.set_footer(text="This action cannot be undone.")
+        return embed
+
+    @discord.ui.button(label="✅ Confirm Sell", style=discord.ButtonStyle.success, row=0)
+    async def confirm_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Execute sale
+        ok, err = sell_card_copies(
+            self.parent_view.col_data,
+            interaction.user.id,
+            self.filename,
+            self.quantity,
+        )
+        if not ok:
+            await interaction.response.edit_message(
+                content=f"❌ {err}", embed=None, view=None
+            ); return
+
+        # Award coins
+        econ_ok, coins_awarded, msg = econ_mod.sell_cards(
+            self.parent_view.econ_data,
+            interaction.user.id,
+            self.filename,
+            self.tier,
+            self.quantity,
+        )
+
+        # Refresh parent view card list
+        self.parent_view.user_data = self.parent_view.col_data.get(
+            str(interaction.user.id),
+            self.parent_view.user_data
+        )
+        self.parent_view._build_card_list()
+        self.parent_view._refresh_buttons()
+
+        new_balance = econ_mod.get_balance(self.parent_view.econ_data, interaction.user.id)
+        await interaction.response.edit_message(
+            content=(
+                f"✅ Sold **{self.quantity}x** `{self.filename}` for "
+                f"**{self.total_coins:,} 🪙 CatCoins**!\nNew balance: **{new_balance:,} CatCoins**"
+            ),
+            embed=None,
+            view=None,
+        )
+
+    @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary, row=0)
+    async def cancel_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.edit_message(
+            content="Sale cancelled.", embed=None, view=None
+        )
+
 _bot_ref = None
 def set_bot_ref(bot): global _bot_ref; _bot_ref = bot
 
@@ -1657,18 +1957,22 @@ class DuplicatesView(discord.ui.View):
         else:
             embed.add_field(name="Cards", value="_No duplicates yet._", inline=False)
 
-        # Trade-up summary
+        # Sell nudge — show total dupes and coin value
         from user_collections import get_tradeable_count
-        tc = {t: get_tradeable_count(self.user_data, t) for t in ["common", "rare", "ultra_rare"]}
-        trade_lines = []
-        if tc["common"] >= 10:
-            trade_lines.append(f"⬜ {tc['common']} tradeable commons → can trade {tc['common'] // 10}x 🔵 Rare")
-        if tc["rare"] >= 5:
-            trade_lines.append(f"🔵 {tc['rare']} tradeable rares → can trade {tc['rare'] // 5}x 🟣 Ultra Rare")
-        if tc["ultra_rare"] >= 5:
-            trade_lines.append(f"🟣 {tc['ultra_rare']} tradeable ultra rares → can trade {tc['ultra_rare'] // 5}x 🌟 Legendary")
-        if trade_lines:
-            embed.add_field(name="🔄 Available Trades", value="\n".join(trade_lines), inline=False)
+        total_tradeable = sum(d["tradeable"] for d in self.dupes)
+        if total_tradeable > 0:
+            coin_total = sum(
+                d["tradeable"] * CATCOIN_SELL_VALUES.get(d["tier"], 0)
+                for d in self.dupes
+            )
+            embed.add_field(
+                name="🪙 Sell Your Duplicates",
+                value=(
+                    f"You have **{total_tradeable}** tradeable duplicate(s) worth up to "
+                    f"**{coin_total} CatCoins**.\nUse **Sell Dupes** below or `/sell` to sell any card."
+                ),
+                inline=False
+            )
 
         embed.set_footer(text=f"Page {self.page + 1} of {self.total_pages}")
         return embed
@@ -1700,6 +2004,18 @@ class DuplicatesView(discord.ui.View):
             embed=self.build_embed(),
             view=TradeUpView(self.member, self.user_data, self.col_data)
         )
+
+    @discord.ui.button(label="🪙 Sell Dupes", style=discord.ButtonStyle.primary, row=1)
+    async def sell_dupes_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not self.dupes:
+            await interaction.response.send_message("You have no duplicates to sell.", ephemeral=True); return
+        view = SellView(
+            self.member, self.user_data, self.col_data,
+            econ_mod.load_economy(),
+            dupes_only=True,
+            back_view=DuplicatesView(self.member, self.user_data, self.col_data, self.all_facts_count)
+        )
+        await interaction.response.edit_message(embed=view.build_embed(), view=view)
 
 # =============================================================================
 #  GIFT A DUPLICATE FLOW
@@ -1807,15 +2123,23 @@ class GiftDupeUserIDModal(discord.ui.Modal, title="Enter Recipient User ID"):
 # =============================================================================
 #  TRADE-UP FLOW
 # =============================================================================
+# Trade-up rates — costs are in tradeable duplicate cards
+# ultra_rare removed as a trade target (legacy, no new prints)
 TRADE_RATES = {
-    "common":    {"cost": 10, "result": "rare"},
-    "rare":      {"cost": 5,  "result": "ultra_rare"},
-    "ultra_rare":{"cost": 5,  "result": "legendary"},
+    "common":        {"cost": 10, "result": "rare"},
+    "rare":          {"cost": 5,  "result": "secret_rare"},
+    "secret_rare":   {"cost": 5,  "result": "legendary"},
+    "legendary":     {"cost": 3,  "result": "mythic_rare"},
+    "mythic_rare":   {"cost": 3,  "result": "secret_mythic"},
+    "secret_mythic": {"cost": 3,  "result": "primordial"},
 }
 TRADE_LABELS = {
-    "common":     "10 Common dupes → 🔵 Rare pull",
-    "rare":       "5 Rare dupes → 🟣 Ultra Rare pull",
-    "ultra_rare": "5 Ultra Rare dupes → 🌟 Legendary pull",
+    "common":        "10 Common dupes → ✦ Secret Rare pull",
+    "rare":          "5 Rare dupes → ✦ Secret Rare pull",
+    "secret_rare":   "5 Secret Rare dupes → 🌟 Legendary pull",
+    "legendary":     "3 Legendary dupes → 💎 Mythic Rare pull",
+    "mythic_rare":   "3 Mythic Rare dupes → 🌈 Secret Mythic pull",
+    "secret_mythic": "3 Secret Mythic dupes → 🔥 Primordial pull",
 }
 
 class TradeUpView(discord.ui.View):
