@@ -1,7 +1,7 @@
 import os
 
 # ── Core ──────────────────────────────────────────────────────────────────────
-TOKEN = "MTUwMTY2MTg5Mzk5MDAyMzIwOA.GdK994.1ycwZNDNsn2BSMULBI1TnpslSXR8KzvQTv8ouU"
+TOKEN = "your_token_here"
 PREFIX   = "!"
 OWNER_ID = 196106852214243328
 
